@@ -1,0 +1,24 @@
+#dataGrid {
+    height: 1000px;
+}
+
+#app-container {
+    width: absolute;
+    position: relative;
+}
+
+.Green-span,
+.Red-span {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    display: inline-block;
+}
+
+.Green-span {
+    background-color: green;
+}
+
+.Red-span {
+    background-color: red;
+}

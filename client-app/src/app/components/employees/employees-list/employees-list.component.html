@@ -1,0 +1,77 @@
+<div id="app-container" class="px-2">
+    <dx-data-grid [dataSource]="employees" keyExpr="id" remoteOperations="true" [allowColumnResizing]="true"
+        [columnAutoWidth]="true" [allowColumnReordering]="true" (onRowInserting)="insertEmployee($event)"
+        (onRowInserting)="employeeInserted($event)" (onInitNewRow)="initCreateNewEmployee($event)">
+        <dxo-search-panel [visible]="true" [width]="300" placeholder="Search..."></dxo-search-panel>
+        <dxi-column dataField="name" caption="Full Name" sortOrder="asc">
+            <dxi-validation-rule type="required"></dxi-validation-rule>
+            <dxi-validation-rule type="stringLength" [min]="3" [max]="50"
+                message="Name must have between 3 and 50 symbols"></dxi-validation-rule>
+        </dxi-column>
+        <dxi-column dataField="age" dataType="number" caption="Age" cellTemplate="ageTemplate">
+            <dxi-validation-rule type="required"></dxi-validation-rule>
+            <dxi-validation-rule type="range" [min]="18" [max]="90"
+                message="Age must be at least 18 years old"></dxi-validation-rule>
+        </dxi-column>
+        <dxi-column dataField="position.name" dataType="string" caption="Position">
+            <dxi-validation-rule type="required"></dxi-validation-rule>
+            <dxi-validation-rule type="stringLength" [min]="3" [max]="50"
+                message="Position must have between 3 and 50 symbols"></dxi-validation-rule>
+        </dxi-column>
+        <dxi-column dataField="signingDate" dataType="date" caption="Date Of Signing"
+            cellTemplate="nullableDateTemplate">
+            <dxi-validation-rule type="required"></dxi-validation-rule>
+        </dxi-column>
+        <dxi-column dataField="leavingDate" dataType="date" cellTemplate="nullableDateTemplate">
+        </dxi-column>
+        <dxi-column dataField="address.address" dataType="string" caption="Address"
+            cellTemplate="nullableStringTemplate">
+            <dxi-validation-rule type="stringLength" [max]="50"
+                message="Address must have between 3 and 50 symbols"></dxi-validation-rule>
+        </dxi-column>
+        <dxi-column dataField="address.city" dataType="string" caption="City" cellTemplate="nullableStringTemplate">
+            <dxi-validation-rule type="stringLength" [max]="50"
+                message="City must have between 3 and 50 symbols"></dxi-validation-rule>
+            <dxi-validation-rule type="pattern" [pattern]="cityAndCountryPattern"
+                message="Do not use digits in the City name"></dxi-validation-rule>
+        </dxi-column>
+        <dxi-column dataField="address.country" dataType="string" caption="Country"
+            cellTemplate="nullableStringTemplate">
+            <dxi-validation-rule type="stringLength" [max]="50"
+                message="Country must have between 3 and 50 symbols"></dxi-validation-rule>
+            <dxi-validation-rule type="pattern" [pattern]="cityAndCountryPattern"
+                message="Do not use digits in the City name"></dxi-validation-rule>
+        </dxi-column>
+        <dxi-column dataField="address.postCode" dataType="string" caption="Postal code" [visible]="true"
+            cellTemplate="nullableStringTemplate">
+            <dxi-validation-rule type="stringLength" [max]="50"
+                message="Postal Code must have between 3 and 50 symbols"></dxi-validation-rule>
+        </dxi-column>
+        <dxi-column dataField="isActive" dataType="boolean" caption="Is active?" cellTemplate="isActiveTemplate"
+            alignment="center">
+        </dxi-column>
+
+        <dxo-editing caption="Actions" mode="popup" [allowUpdating]="true" [allowDeleting]="true" [allowAdding]="true">
+        </dxo-editing>
+        <dxo-selection mode="single"></dxo-selection>
+
+        <div *dxTemplate="let data of 'isActiveTemplate'">
+            <div [ngClass]="{
+                'Red-span': data.value == false,
+                'Green-span': data.value == true
+            }">
+            </div>
+        </div>
+        <div *dxTemplate="let data of 'nullableDateTemplate'">
+            <div *ngIf="!data.value">N/A</div>
+            <div *ngIf="data.value">{{data.value | date : "yyyy-MM-dd"}}</div>
+        </div>
+        <div *dxTemplate="let data of 'ageTemplate'">
+            <div *ngIf="data.value">{{data.value | number}} y/o</div>
+        </div>
+        <div *dxTemplate="let data of 'nullableStringTemplate'">
+            <div *ngIf="!data.value">N/A</div>
+            <div *ngIf="data.value">{{data.value}}</div>
+        </div>
+    </dx-data-grid>
+</div>
