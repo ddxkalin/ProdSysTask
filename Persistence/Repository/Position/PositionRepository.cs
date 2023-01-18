@@ -1,12 +1,5 @@
 ﻿using Dapper;
 using Domain.Dtos;
-using Persistence;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Persistence.Repository.Position
 {
@@ -24,6 +17,20 @@ namespace Persistence.Repository.Position
             {
                 return await connection.QuerySingleAsync<int>(query, new
                 {
+                    Name = position.Name
+                });
+            }
+        }
+
+        public async Task UpdatePosition(int PositionId, PositionDTO position)
+        {
+            var query = "Update Position set Name = @Name where Id = @PositionID";
+
+            using (var connection = _context.CreateConnection())
+            {
+                await connection.QueryAsync<int>(query, new
+                {
+                    PositionID = PositionId,
                     Name = position.Name
                 });
             }

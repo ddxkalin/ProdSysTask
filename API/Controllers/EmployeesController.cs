@@ -74,10 +74,12 @@ namespace API.Controllers
             try
             {
                 var dbEmployee = await this.EmployeeService.GetEmployeeByIdAsync(id);
+
                 if (dbEmployee == null)
                     return NotFound();
 
-                await EmployeeService.GetEmployeeByIdAsync(id);
+                await EmployeeService.DeleteEmployee(id);
+
                 return NoContent();
             }
             catch (Exception ex)

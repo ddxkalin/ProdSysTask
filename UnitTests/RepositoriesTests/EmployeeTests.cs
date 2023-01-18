@@ -1,5 +1,4 @@
 using Application.Services.EmployeeService;
-using Domain;
 using Domain.Dtos;
 
 namespace UnitTests.RepositoriesTests
@@ -26,7 +25,7 @@ namespace UnitTests.RepositoriesTests
                 {
                     City = "Paris",
                     Country = "France",
-                    Address = "Rue la liberté, 45 N°22",
+                    Address = "Rue la libertï¿½, 45 Nï¿½22",
                     PostCode = "2000-55"
                 },
                 Age = 25,
@@ -60,6 +59,40 @@ namespace UnitTests.RepositoriesTests
 
             Assert.NotNull(createdEmployee);
 
+        }
+
+        [Fact]
+        public async Task UpdateEmployee()
+        {
+            var employee = new EmployeeDTO()
+            {
+                Position = new PositionDTO()
+                {
+                    Name = "Full Stack Developer (.NET/Angular)"
+                },
+                Address = new AddressDTO()
+                {
+                    City = "Lisbon",
+                    Country = "Portugal",
+                    Address = "Rua vila alferes chamusca, 7, 1ï¿½DTO",
+                    PostCode = "1800-433"
+                },
+                Age = 24,
+                IsActive = true,
+                Name = "MAGHFOUR Yassine",
+                SigningDate = DateTime.Now
+            };
+
+            await EmployeeService.UpdateEmployeeAsync(2, employee);
+
+            Assert.True(true);
+        }
+
+        [Fact]
+        public async Task DeleteEmployee()
+        {
+            await EmployeeService.DeleteEmployee(1);
+            Assert.True(true);
         }
     }
 }

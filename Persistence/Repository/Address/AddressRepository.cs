@@ -1,12 +1,5 @@
 ﻿using Dapper;
 using Domain.Dtos;
-using Persistence;
-using System;
-using System.Collections.Generic;
-using System.Data;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Persistence.Repository.Address
 {
@@ -23,6 +16,23 @@ namespace Persistence.Repository.Address
             using (var connection = _context.CreateConnection())
             {
                 return await connection.QuerySingleAsync<int>(query, new {
+                    City = address.City,
+                    Country = address.Country,
+                    Address = address.Address,
+                    PostCode = address.PostCode
+                });
+            }
+        }
+
+        public async Task UpdateAddress(int addressId, AddressDTO address)
+        {
+            var query = "Update Address set City = @City, Country = @Country, Address = @Address, PostCode = PostCode where Id = @AddressID";
+
+            using (var connection = _context.CreateConnection())
+            {
+                await connection.QueryAsync(query, new
+                {
+                    AddressID = addressId,
                     City = address.City,
                     Country = address.Country,
                     Address = address.Address,

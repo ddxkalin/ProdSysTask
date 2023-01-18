@@ -2,12 +2,6 @@
 using Persistence.Repository.Employee;
 using Persistence.Repository.Position;
 using Domain.Dtos;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Transactions;
 
 namespace Application.Services.EmployeeService
 {
@@ -54,14 +48,38 @@ namespace Application.Services.EmployeeService
             return await EmployeeRepository.GetEmployeeByIdAsync(id);
         }
 
-        public Task UpdateEmployeeAsync(int id, EmployeeDTO employee)
+        public async Task UpdateEmployeeAsync(int EmployeeId, EmployeeDTO employee)
         {
-            throw new NotImplementedException();
+            EmployeeDTO dbEmployee = (await this.GetEmployeeByIdAsync(EmployeeId))!;
+
+            employee.AddressId = dbEmployee.AddressId;
+            employee.PositionId = dbEmployee.PositionId;
+
+            //Update the address when filled
+            if(employee.Address != null) 
+            {
+                if (!dbEmployee.AddressId.HasValue)
+                    employee.AddressId = await this.AddressRepository.CreateAddress(employee.Address);
+                else
+                    await this.AddressRepository.UpdateAddress(dbEmployee.AddressId.Value, employee.Address);
+            }
+
+            //Update the position filled 
+            if (employee.Position != null)
+            {
+                if (!dbEmployee.PositionId.HasValue)
+                    employee.PositionId = await this.PositionRepository.CreatePosition(employee.Position);
+                else
+                    await this.PositionRepository.UpdatePosition(dbEmployee.PositionId.Value, employee.Position);
+            }
+
+            //update the employee
+            await this.EmployeeRepository.UpdateEmployeeAsync(EmployeeId, employee);
         }
 
-        public Task DeleteEmployee(int id)
+        public async Task DeleteEmployee(int id)
         {
-            throw new NotImplementedException();
+            await EmployeeRepository.DeleteEmployee(id);
         }
     }
 }

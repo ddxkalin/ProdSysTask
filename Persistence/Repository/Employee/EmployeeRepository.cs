@@ -1,7 +1,6 @@
 namespace Persistence.Repository.Employee
 {
     using System.Data;
-    using System.Transactions;
     using Dapper;
     using Domain.Dtos;
     using Persistence;
@@ -14,7 +13,7 @@ namespace Persistence.Repository.Employee
 
         public async Task<IEnumerable<EmployeeDTO>> GetAllEmployeesAsync()
         {
-            var query = "SELECT E.*, P.*, A.* FROM Employee E left join Position P on P.Id = E.PositionId left join Address A on A.Id = E.AddressId";
+            var query = "SELECT E.*, P.*, A.* FROM Employee E left join Position P on P.Id = E.PositionId left join Address A on A.Id = E.AddressId where E.IsDeleted = @IsDeleted";
 
             using (var connection = _context.CreateConnection())
             {
@@ -25,6 +24,8 @@ namespace Persistence.Repository.Employee
                     if (address != null)
                         employee.Address = address;
                     return employee;
+                }, new {
+                    IsDeleted = false
                 });
 
                 return employees.ToList();
@@ -32,7 +33,7 @@ namespace Persistence.Repository.Employee
         }
         public async Task<EmployeeDTO?> GetEmployeeByIdAsync(int id)
         {
-            var query = "SELECT E.*, P.*, A.* FROM Employee E left join Position P on P.Id = E.PositionId left join Address A on A.Id = E.AddressId WHERE E.Id = @EmployeeId";
+            var query = "SELECT E.*, P.*, A.* FROM Employee E left join Position P on P.Id = E.PositionId left join Address A on A.Id = E.AddressId WHERE E.Id = @EmployeeId and E.IsDeleted = @IsDeleted";
 
             using (var connection = _context.CreateConnection())
             {
@@ -43,7 +44,7 @@ namespace Persistence.Repository.Employee
                     if (address != null)
                         employee.Address = address;
                     return employee;
-                }, new { EmployeeId = id });
+                }, new { EmployeeId = id, IsDeleted = false });
 
                 return employees.FirstOrDefault();
             }
@@ -62,32 +63,43 @@ namespace Persistence.Repository.Employee
             parameters.Add("AddressId", employee.AddressId, DbType.Int32);
             parameters.Add("PositionId", employee.PositionId, DbType.Int32);
 
-            using var connection = _context.CreateConnection();
-
-            return await connection.QuerySingleAsync<int>(query, parameters);
+            using (var connection = _context.CreateConnection())
+            {
+                return await connection.QuerySingleAsync<int>(query, parameters);
+            }
         }
 
         public async Task UpdateEmployeeAsync(int id, EmployeeDTO employee)
         {
-            var query = "UPDATE Employee SET Name = @Name, Age = @Age WHERE Id = @EmployeeId";
+            var query = "Update Employee set Name = @Name, Age = @Age, AddressId = @AddressId, PositionId = @PositionId, SigningDate = @SigningDate, LeavingDate = @LeavingDate, IsActive = @IsActive where Id = @EmployeeId";
 
             var parameters = new DynamicParameters();
             parameters.Add("EmployeeId", id, DbType.Int32);
             parameters.Add("Name", employee.Name, DbType.String);
-            parameters.Add("Age", employee.Age, DbType.String);
+            parameters.Add("Age", employee.Age, DbType.Int32);
+            parameters.Add("SigningDate", employee.SigningDate, DbType.Date);
+            parameters.Add("LeavingDate", employee.LeavingDate, DbType.Date);
+            parameters.Add("IsActive", employee.IsActive, DbType.Boolean);
+            parameters.Add("AddressId", employee.AddressId, DbType.Int32);
+            parameters.Add("PositionId", employee.PositionId, DbType.Int32);
 
-            using var connection = _context.CreateConnection();
-
-            await connection.ExecuteAsync(query, parameters);
+            using (var connection = _context.CreateConnection())
+            {
+                await connection.QueryAsync(query, parameters);
+            }
         }
 
-        public async Task DeleteEmployee(int id)
+        public async Task DeleteEmployee(int EmployeeID)
         {
-            var query = "DELETE FROM Employee WHERE Id = @EmployeeId";
+            var query = "UPDATE Employee SET IsDeleted = @ISDELETED WHERE Id = @EmployeeId";
 
-            using var connection = _context.CreateConnection();
-
-            await connection.ExecuteAsync(query, new { id });
+            using (var connection = _context.CreateConnection())
+            {
+                await connection.QueryAsync(query, new {
+                    EmployeeId = EmployeeID,
+                    ISDELETED = true
+                });
+            }
         }
     }
 }
