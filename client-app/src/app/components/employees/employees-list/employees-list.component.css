@@ -22,3 +22,8 @@
 .Red-span {
     background-color: red;
 }
+
+::ng-deep .dx-toast-content {
+    min-width: 300px;
+    max-width: 400px;
+}
