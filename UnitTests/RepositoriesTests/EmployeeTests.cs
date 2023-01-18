@@ -79,7 +79,7 @@ namespace UnitTests.RepositoriesTests
                 },
                 Age = 24,
                 IsActive = true,
-                Name = "MAGHFOUR Yassine",
+                Name = "Kalin STOEV",
                 SigningDate = DateTime.Now
             };
 
